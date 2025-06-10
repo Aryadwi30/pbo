@@ -8,98 +8,72 @@
 </head>
 <body>
   <div class="profile-container">
-  <div class="header-bg"></div>
+    <div class="header-bg"></div>
 
-  <div class="profile-photo-wrapper">
-    <img src="profile.png" alt="profile" class="profile-photo" />
-  </div>
+    <div class="profile-photo-wrapper">
+      <img src="profil.jpg" alt="profile" class="profile-photo" />
+    </div>
 
-  <div class="header-text">
-    <h1>Wawan Sismadi</h1>
-    <p class="subtitle">He/Him • Web Developer</p>
-    <p>Jakarta, Indonesia • <a href="https://wawan.sismadi.com">wawan.sismadi.com</a></p>
-    <p><strong>Sismadi Langit Solusi</strong> — Universitas Ahmad Dahlan</p>
-  </div>
+    <div class="header-text">
+      <h1>Wawan Sismadi</h1>
+      <p class="subtitle">He/Him • Web Developer</p>
+      <p>Jakarta, Indonesia • <a href="https://wawan.sismadi.com" target="_blank">wawan.sismadi.com</a></p>
+      <p><strong>Sismadi Langit Solusi</strong> — Universitas Ahmad Dahlan</p>
+    </div>
 
-  <div class="action-buttons">
-    <button>Open to work</button>
-    <button>Add profile section</button>
-    <button>Enhance profile</button>
-  </div>
+    <div class="action-buttons">
+      <button>Open to work</button>
+      <button>Add profile section</button>
+      <button>Enhance profile</button>
+    </div>
 
-  <div id="content"  >
-
-
-  </div>
-
-
-
-  <div class="content-card">
-    <h3>Sosial Media <small></small></h3>
-    <ul>
-      <li><strong>linkedin :</strong> http://linkedin.com/in/sismadi </li>
-      <li><strong>credly :</strong> https://www.credly.com/users/wawan-sismadi</li>
-    </ul>
-  </div>
-</div>
-
-
-<script type="module">
-// Import Supabase client dari CDN
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-
-
-const SUPABASE_URL = 'afithkfvpcpmmtvxkofy.supabase.co'
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmaXRoa2Z2cGNwbW10dnhrb2Z5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk1Mjc1NzQsImV4cCI6MjA2NTEwMzU3NH0.mQGqhW30fbhg1aHcVtsAo2vmypDBSvnuvhYNvtSg0Jk'
-
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-
-// Elemen DOM
-// const addBtn = document.getElementById('addBtn')
-// const dataBody = document.getElementById('dataBody')
-// const crudForm = document.getElementById('crudForm')
-// const recordIdInput = document.getElementById('recordId')
-// const nameInput = document.getElementById('nameInput')
-// const emailInput = document.getElementById('emailInput')
-// const deleteBtn = document.getElementById('deleteBtn')
-// const cancelBtn = document.getElementById('cancelBtn')
-
-const content = document.getElementById('content')
-
-// Fungsi load data ke tabel
-async function loadData() {
-  const { data, error } = await supabase.from('web').select('*').order('id')
-  if (error) {
-    alert('Error loading data: ' + error.message)
-    return
-  }
-  content.innerHTML = ''
-  let  out=``;
-  data.forEach(row => {
-
-    out+=`
+    <div id="content">
+      <p>Loading data dari Supabase...</p>
+    </div>
 
     <div class="content-card">
-    <h2>${row.judul}</h2>
-    <p>${row.isi}
-</p>
-
+      <h3>Sosial Media</h3>
+      <ul>
+        <li><strong>LinkedIn:</strong> <a href="http://linkedin.com/in/sismadi" target="_blank">linkedin.com/in/sismadi</a></li>
+        <li><strong>Credly:</strong> <a href="https://www.credly.com/users/wawan-sismadi" target="_blank">credly.com/users/wawan-sismadi</a></li>
+      </ul>
+    </div>
   </div>
-  `
 
-  })
-  content.innerHTML = out
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
+    const SUPABASE_URL = 'https://afithkfvpcpmmtvxkofy.supabase.co'
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmaXRoa2Z2cGNwbW10dnhrb2Z5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk1Mjc1NzQsImV4cCI6MjA2NTEwMzU3NH0.mQGqhW30fbhg1aHcVtsAo2vmypDBSvnuvhYNvtSg0Jk'
 
-}
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    const content = document.getElementById('content')
 
- // Load data saat halaman siap
-window.addEventListener('DOMContentLoaded', loadData)
+    async function loadData() {
+      const { data, error } = await supabase.from('web').select('*').order('id')
+      if (error) {
+        content.innerHTML = `<p style="color:red;">Gagal memuat data: ${error.message}</p>`
+        return
+      }
 
-</script>
+      if (!data.length) {
+        content.innerHTML = '<p>Tidak ada konten yang ditemukan.</p>'
+        return
+      }
 
+      let output = ''
+      data.forEach(row => {
+        output += `
+          <div class="content-card">
+            <h2>${row.judul}</h2>
+            <p>${row.isi}</p>
+          </div>
+        `
+      })
+      content.innerHTML = output
+    }
 
-
+    window.addEventListener('DOMContentLoaded', loadData)
+  </script>
 </body>
 </html>
