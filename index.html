@@ -3,11 +3,134 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>arya dwi agustian</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Wawan Sismadi</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 30px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-bg {
+      background: linear-gradient(to right, #6366f1, #8b5cf6);
+      height: 120px;
+      border-radius: 16px 16px 0 0;
+    }
+
+    .profile-photo-wrapper {
+      text-align: center;
+      margin-top: -60px;
+    }
+
+    .profile-photo {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 4px solid white;
+      object-fit: cover;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .header-text {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .header-text h1 {
+      font-size: 28px;
+      margin: 10px 0 5px;
+      color: #1f2937;
+    }
+
+    .header-text .subtitle {
+      color: #6b7280;
+      font-weight: 500;
+      font-size: 15px;
+      margin-bottom: 5px;
+    }
+
+    .header-text a {
+      color: #4f46e5;
+      text-decoration: none;
+    }
+
+    .header-text a:hover {
+      text-decoration: underline;
+    }
+
+    .action-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+
+    .action-buttons button {
+      background-color: #4f46e5;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 9999px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s ease;
+    }
+
+    .action-buttons button:hover {
+      background-color: #4338ca;
+    }
+
+    .content-card {
+      background-color: #f9fafb;
+      padding: 16px;
+      margin-top: 16px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    .content-card h2,
+    .content-card h3 {
+      margin: 0 0 8px;
+      color: #1e3a8a;
+    }
+
+    .content-card p {
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    .content-card ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    .content-card li {
+      margin: 8px 0;
+    }
+
+    .error {
+      color: red;
+    }
+
+    .no-data {
+      color: #6b7280;
+    }
+  </style>
 </head>
 <body>
-  <div class="profile-container">
+  <div class="container">
     <div class="header-bg"></div>
 
     <div class="profile-photo-wrapper">
@@ -15,10 +138,12 @@
     </div>
 
     <div class="header-text">
-      <h1>arya dwi agustian</h1>
+      <h1>Wawan Sismadi</h1>
       <p class="subtitle">He/Him • Web Developer</p>
-      <p>Jakarta, Indonesia • <a href="https://wawan.sismadi.com" target="_blank">wawan.sismadi.com</a></p>
-      <p><strong>arya</strong> — Universitas Ahmad Dahlan</p>
+      <p>Jakarta, Indonesia • 
+        <a href="https://wawan.sismadi.com" target="_blank">wawan.sismadi.com</a>
+      </p>
+      <p><strong>Sismadi Langit Solusi</strong> — Universitas Ahmad Dahlan</p>
     </div>
 
     <div class="action-buttons">
@@ -34,8 +159,12 @@
     <div class="content-card">
       <h3>Sosial Media</h3>
       <ul>
-        <li><strong>LinkedIn:</strong> <a href="http://linkedin.com/in/sismadi" target="_blank">linkedin.com/in/sismadi</a></li>
-        <li><strong>Credly:</strong> <a href="https://www.credly.com/users/wawan-sismadi" target="_blank">credly.com/users/wawan-sismadi</a></li>
+        <li><strong>LinkedIn:</strong> 
+          <a href="http://linkedin.com/in/sismadi" target="_blank">linkedin.com/in/sismadi</a>
+        </li>
+        <li><strong>Credly:</strong> 
+          <a href="https://www.credly.com/users/wawan-sismadi" target="_blank">credly.com/users/wawan-sismadi</a>
+        </li>
       </ul>
     </div>
   </div>
@@ -44,7 +173,7 @@
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
     const SUPABASE_URL = 'https://afithkfvpcpmmtvxkofy.supabase.co'
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmaXRoa2Z2cGNwbW10dnhrb2Z5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk1Mjc1NzQsImV4cCI6MjA2NTEwMzU3NH0.mQGqhW30fbhg1aHcVtsAo2vmypDBSvnuvhYNvtSg0Jk'
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
     const content = document.getElementById('content')
@@ -52,12 +181,12 @@
     async function loadData() {
       const { data, error } = await supabase.from('web').select('*').order('id')
       if (error) {
-        content.innerHTML = `<p style="color:red;">Gagal memuat data: ${error.message}</p>`
+        content.innerHTML = `<p class="error">Gagal memuat data: ${error.message}</p>`
         return
       }
 
       if (!data.length) {
-        content.innerHTML = '<p>Tidak ada konten yang ditemukan.</p>'
+        content.innerHTML = '<p class="no-data">Tidak ada konten yang ditemukan.</p>'
         return
       }
 
