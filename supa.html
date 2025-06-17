@@ -3,30 +3,134 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Arya dwi agustian</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Arya Dwi Agustian</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #e0eafc, #cfdef3);
+      color: #333;
+      padding: 20px;
+    }
+
+    .profile-container {
+      max-width: 800px;
+      margin: auto;
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .header-bg {
+      height: 150px;
+      background: linear-gradient(135deg, #0077b6, #00b4d8);
+    }
+
+    .profile-photo-wrapper {
+      text-align: center;
+      margin-top: -60px;
+    }
+
+    .profile-photo {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 5px solid #fff;
+      object-fit: cover;
+    }
+
+    .header-text {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .header-text h1 {
+      font-size: 28px;
+      color: #0077b6;
+    }
+
+    .subtitle {
+      color: #555;
+      font-style: italic;
+      margin-bottom: 10px;
+    }
+
+    .header-text a {
+      color: #00b4d8;
+      text-decoration: none;
+    }
+
+    .action-buttons {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .action-buttons button {
+      margin: 5px;
+      padding: 10px 20px;
+      background: #0077b6;
+      color: #fff;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .action-buttons button:hover {
+      background: #005f86;
+    }
+
+    #content {
+      padding: 0 20px 20px;
+    }
+
+    .content-card {
+      background: #f9f9f9;
+      border: 1px solid #ddd;
+      border-left: 5px solid #0077b6;
+      padding: 15px 20px;
+      border-radius: 10px;
+      margin: 15px 0;
+    }
+
+    .content-card h2 {
+      margin-bottom: 10px;
+      color: #0077b6;
+    }
+
+    ul {
+      padding-left: 20px;
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+  </style>
 </head>
 <body>
 <div class="profile-container">
   <div class="header-bg"></div>
 
   <div class="profile-photo-wrapper">
-    <img src="profile.png" alt="profile" class="profile-photo" />
+    <img src="profil.jpg" alt="profile" class="profile-photo" />
   </div>
 
   <div class="header-text">
-    <h1>arya dwi agustian</h1>
+    <h1>Arya Dwi Agustian</h1>
     <p class="subtitle">He/Him • Web Developer</p>
     <p>Jakarta, Indonesia • <a href="https://wawan.sismadi.com">wawan.sismadi.com</a></p>
-    <p><strong>arya Langit Solusi</strong> — Universitas Ahmad Dahlan</p>
+    <p><strong>Arya Langit Solusi</strong> — Universitas Ahmad Dahlan</p>
   </div>
 
   <div class="action-buttons">
-
-
     <button id="loginBtn">Login untuk akses data</button>
-<button id="logoutBtn">Logout</button>
-
+    <button id="logoutBtn">Logout</button>
   </div>
 
   <div id="content"></div>
@@ -34,8 +138,8 @@
   <div class="content-card">
     <h3>Sosial Media</h3>
     <ul>
-      <li><strong>linkedin :</strong> http://linkedin.com/in/sismadi</li>
-      <li><strong>credly :</strong> https://www.credly.com/users/wawan-sismadi</li>
+      <li><strong>LinkedIn:</strong> <a href="http://linkedin.com/in/sismadi" target="_blank">linkedin.com/in/sismadi</a></li>
+      <li><strong>Credly:</strong> <a href="https://www.credly.com/users/wawan-sismadi" target="_blank">credly.com/users/wawan-sismadi</a></li>
     </ul>
   </div>
 </div>
@@ -49,11 +153,10 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 const content = document.getElementById('content')
 
-// Coba login manual (bisa diganti pakai form)
 async function login() {
   const { data, error } = await supabase.auth.signInWithPassword({
-    email: 'Arya@example.com', // ganti dengan akun terdaftar
-    password: 'password123'     // ganti sesuai user
+    email: 'Arya@example.com',
+    password: 'password123'
   })
 
   if (error) {
@@ -69,20 +172,15 @@ async function logout() {
   content.innerHTML = '<p>Logout berhasil.</p>'
 }
 
-// Load data hanya milik user yang login
 async function loadData() {
   const {
     data: { user }
   } = await supabase.auth.getUser()
 
   if (!user) {
-
     content.innerHTML = '<p>Silakan login untuk melihat data.</p>'
     return
   }
-
-
-
 
   const { data, error } = await supabase
     .from('web')
@@ -105,19 +203,15 @@ async function loadData() {
   })
 
   content.innerHTML = out
-
 }
-
 
 document.getElementById('loginBtn').addEventListener('click', login)
 document.getElementById('logoutBtn').addEventListener('click', logout)
-
 
 window.addEventListener('DOMContentLoaded', async () => {
   const { data: { user } } = await supabase.auth.getUser()
   if (user) loadData()
 })
 </script>
-
 </body>
 </html>
