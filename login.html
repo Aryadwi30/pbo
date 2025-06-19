@@ -1,70 +1,271 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Login Sederhana - LocalStorage</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Arya Dwi Agustian</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      color: #f1f1f1;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: #1e1e2f;
+      border-radius: 20px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    .header-bg {
+      height: 150px;
+      background: linear-gradient(135deg, #00c9a7, #007f8c);
+      border-radius: 20px 20px 0 0;
+    }
+
+    .profile-photo-wrapper {
+      text-align: center;
+      margin-top: -60px;
+    }
+
+    .profile-photo {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 5px solid #1e1e2f;
+      object-fit: cover;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .header-text {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .header-text h1 {
+      font-size: 28px;
+      color: #00c9a7;
+    }
+
+    .subtitle {
+      color: #ccc;
+      font-style: italic;
+      margin-bottom: 10px;
+    }
+
+    .header-text a {
+      color: #00ffd5;
+      text-decoration: none;
+    }
+
+    .header-text a:hover {
+      text-decoration: underline;
+    }
+
+    .action-buttons {
+      text-align: center;
+      margin: 20px;
+    }
+
+    .action-buttons input {
+      padding: 8px;
+      border-radius: 5px;
+      margin: 5px;
+      border: none;
+    }
+
+    .action-buttons button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 5px;
+      background: #00c9a7;
+      color: #1e1e2f;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .action-buttons button:hover {
+      background: #00ffd5;
+    }
+
+    #content {
+      padding: 0 20px 20px;
+    }
+
+    .content-card {
+      background: #2a2a3d;
+      border-left: 5px solid #00c9a7;
+      padding: 15px 20px;
+      border-radius: 10px;
+      margin: 15px 0;
+      color: #e0e0e0;
+    }
+
+    .content-card h2 {
+      margin-bottom: 10px;
+      color: #00ffd5;
+    }
+
+    ul {
+      padding-left: 20px;
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    a {
+      color: #00ffd5;
+    }
+
+    .error {
+      color: #ff4c4c;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .no-data {
+      color: #aaa;
+      text-align: center;
+      font-style: italic;
+    }
+  </style>
 </head>
 <body>
+  <div class="container">
+    <div class="header-bg"></div>
 
-<div class="login-box" id="loginBox">
-  <h2>Login</h2>
-  <form id="loginForm">
-    <label>Username:
-      <input type="text" id="username" required>
-    </label>
-    <label>Password:
-      <input type="password" id="password" required>
-    </label>
-    <button type="submit">Login</button>
-  </form>
-</div>
+    <div class="profile-photo-wrapper">
+      <img src="profil.jpg" alt="profile" class="profile-photo" />
+    </div>
 
-<div class="login-box" id="welcomeBox" style="display: none;">
-  <h2 id="welcome">Halo, User!</h2>
-  <button onclick="logout()">Logout</button>
-</div>
+    <div class="header-text">
+      <h1>Arya Dwi Agustian</h1>
+      <p class="subtitle">Web Developer</p>
+      <p><strong>Arya</strong> — Universitas IPWIJA</p>
+    </div>
 
-<script>
-  // Simulasi user login (hardcoded)
-  const users = {
-    admin: '12345',
-    user: 'pass'
-  };
+    <div class="action-buttons" id="loginForm">
+      <input type="email" id="emailInput" placeholder="Email" />
+      <input type="password" id="passwordInput" placeholder="Password" />
+      <button id="loginBtn">Login</button>
+    </div>
 
-  // Cek apakah user sudah login
-  function checkLogin() {
-    const session = localStorage.getItem('sessionUser');
-    if (session) {
-      document.getElementById('loginBox').style.display = 'none';
-      document.getElementById('welcomeBox').style.display = 'block';
-      document.getElementById('welcome').innerText = `Halo, ${session}!`;
-    }
+    <div class="action-buttons" id="logoutSection" style="display:none;">
+      <button id="logoutBtn">Logout</button>
+    </div>
+
+    <div id="content"><p>Silakan login terlebih dahulu.</p></div>
+
+    <div class="content-card">
+      <h3>Sosial Media</h3>
+      <ul>
+        <li><strong>LinkedIn:</strong> 
+          <a href="http://linkedin.com/in/sismadi" target="_blank">linkedin.com/in/sismadi</a>
+        </li>
+        <li><strong>Credly:</strong> 
+          <a href="https://www.credly.com/users/wawan-sismadi" target="_blank">credly.com/users/wawan-sismadi</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+    const supabase = createClient(
+      'https://afithkfvpcpmmtvxkofy.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmaXRoa2Z2cGNwbW10dnhrb2Z5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk1Mjc1NzQsImV4cCI6MjA2NTEwMzU3NH0.mQGqhW30fbhg1aHcVtsAo2vmypDBSvnuvhYNvtSg0Jk'
+    )
+
+    const content = document.getElementById('content')
+    const loginForm = document.getElementById('loginForm')
+    const logoutSection = document.getElementById('logoutSection')
+    const loginBtn = document.getElementById('loginBtn')
+    const logoutBtn = document.getElementById('logoutBtn')
+    const emailInput = document.getElementById('emailInput')
+    const passwordInput = document.getElementById('passwordInput')
+
+    loginBtn.addEventListener('click', async () => {
+  const email = emailInput.value.trim()
+  const password = passwordInput.value.trim()
+
+  if (!email || !password) {
+    content.innerHTML = '<p class="error">Email dan password wajib diisi.</p>'
+    return
   }
 
-  // Tangani login
-  document.getElementById('loginForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const uname = document.getElementById('username').value.trim();
-    const pass = document.getElementById('password').value.trim();
+  content.innerHTML = '<p>Memproses login...</p>'
 
-    if (users[uname] && users[uname] === pass) {
-      localStorage.setItem('sessionUser', uname);
-      checkLogin();
-    } else {
-      alert('Username atau password salah!');
-    }
-  });
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
-  // Logout
-  function logout() {
-    localStorage.removeItem('sessionUser');
-    location.reload();
+  if (error) {
+    content.innerHTML = `<p class="error">Login gagal: username atau password salah</p>`
+    return
   }
 
-  // Jalankan saat pertama dimuat
-  checkLogin();
-</script>
+  showLoggedInUI()
+  loadData()
+})
 
+
+    logoutBtn.addEventListener('click', async () => {
+      await supabase.auth.signOut()
+      showLoggedOutUI()
+    })
+
+    function showLoggedInUI() {
+      loginForm.style.display = 'none'
+      logoutSection.style.display = 'block'
+    }
+
+    function showLoggedOutUI() {
+      loginForm.style.display = 'block'
+      logoutSection.style.display = 'none'
+      content.innerHTML = '<p>Silakan login terlebih dahulu.</p>'
+    }
+
+    async function loadData() {
+      content.innerHTML = '<p>Memuat data...</p>'
+      const { data, error } = await supabase.from('web').select('*').order('id')
+
+      if (error) {
+        content.innerHTML = `<p class="error">Gagal memuat data: ${error.message}</p>`
+        return
+      }
+
+      if (!data.length) {
+        content.innerHTML = '<p class="no-data">Tidak ada konten yang ditemukan.</p>'
+        return
+      }
+
+      let output = ''
+      data.forEach(row => {
+        output += `
+          <div class="content-card">
+            <h2>${row.judul}</h2>
+            <p>${row.isi}</p>
+          </div>
+        `
+      })
+      content.innerHTML = output
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        showLoggedInUI()
+        loadData()
+      } else {
+        showLoggedOutUI()
+      }
+    })
+  </script>
 </body>
 </html>
