@@ -156,7 +156,7 @@ const content = document.getElementById('content')
 async function login() {
   const { data, error } = await supabase.auth.signInWithPassword({
     email: 'Arya@example.com',
-    password: 'password123'
+    password: '123'
   })
 
   if (error) {
