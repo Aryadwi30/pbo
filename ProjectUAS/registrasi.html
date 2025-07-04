@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Registrasi Akun</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" type="image/png" href="logo.png">
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    const supabase = createClient(
+      'https://afithkfvpcpmmtvxkofy.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmaXRoa2Z2cGNwbW10dnhrb2Z5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk1Mjc1NzQsImV4cCI6MjA2NTEwMzU3NH0.mQGqhW30fbhg1aHcVtsAo2vmypDBSvnuvhYNvtSg0Jk'
+    );
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('registerForm');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value.trim();
+
+        if (!email.endsWith('@gmail.com')) {
+          alert('Registrasi hanya diperbolehkan dengan email @gmail.com');
+          return;
+        }
+
+        // ✅ Validasi password minimal 5 karakter
+        if (password.length < 5) {
+          alert('Password minimal 5 karakter');
+          return;
+        }
+
+        const { data: signupData, error: signupError } = await supabase.auth.signUp({
+          email,
+          password
+        });
+
+        if (signupError) {
+          if (signupError.message.includes('registered')) {
+            alert('Email sudah terdaftar. Silakan login.');
+          } else {
+            alert('❌ Registrasi gagal: ' + signupError.message);
+          }
+          return;
+        }
+
+        const { error: profileError } = await supabase.from('profiles').insert({
+          email,
+          role: 'user'
+        });
+
+        if (profileError) {
+          alert('❌ Gagal menyimpan ke profiles: ' + profileError.message);
+          return;
+        }
+
+        alert('✅ Registrasi berhasil! Silakan login.');
+        window.location.href = 'login.html';
+      });
+    });
+  </script>
+</head>
+<body>
+  <div class="login-box">
+    <h2>Registrasi</h2>
+    <form id="registerForm">
+      <label>Email:</label>
+      <input type="email" id="email" required />
+      <label>Password:</label>
+      <input type="password" id="password" required />
+      <button type="submit">Daftar</button>
+    </form>
+    <p>Sudah punya akun? <a href="login.html">Login di sini</a></p>
+  </div>
+</body>
+</html>

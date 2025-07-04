@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pinjam Barang</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" type="image/png" href="Logo.png">
+
+</head>
+<body>
+<div class="user-box">
+  <h2>Sistem Peminjaman Barang</h2>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" data-target="tab-peminjaman">Peminjaman</button>
+    <button class="tab-btn" data-target="tab-riwayat">Riwayat</button>
+  </div>
+
+  <!-- === TAB: Peminjaman (Daftar Barang + Form) === -->
+  <div id="tab-peminjaman" class="tab-content active">
+    <h2>Daftar barang</h2>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Nama Barang</th><th>Stok</th></tr>
+        </thead>
+        <tbody id="barangBody"></tbody>
+      </table>
+    </div>
+
+    <h3>Form Peminjaman</h3>
+    <p>Halo, <strong><span id="userName"></span></strong></p>
+
+    <form id="peminjamanForm">
+      <div class="form-group">
+        <label for="nama">Nama Lengkap:</label>
+        <input type="text" id="nama" required />
+      </div>
+      <div class="form-group">
+        <label for="nim">NIM:</label>
+        <input type="text" id="nim" required />
+      </div>
+      <div class="form-group">
+        <label for="barang">Pilih Barang:</label>
+        <select id="barang" required><option value="">-- Pilih Barang --</option></select>
+      </div>
+      <div class="form-group">
+        <label for="jumlah">Jumlah Pinjam:</label>
+        <input type="number" id="jumlah" min="1" required />
+      </div>
+      <div class="form-group">
+        <label for="tanggal">Tanggal Pinjam:</label>
+        <input type="date" id="tanggal" required />
+      </div>
+      <button type="submit">Ajukan Peminjaman</button>
+    </form>
+
+    <button id="logoutBtn">Logout</button>
+  </div>
+
+  <!-- === TAB: Riwayat === -->
+  <div id="tab-riwayat" class="tab-content">
+    <h3>Riwayat Peminjaman</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Nama</th>
+            <th>NIM</th>
+            <th>Barang</th>
+            <th>Jumlah</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="riwayatUserBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+  const supabase = createClient(
+    'https://afithkfvpcpmmtvxkofy.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmaXRoa2Z2cGNwbW10dnhrb2Z5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk1Mjc1NzQsImV4cCI6MjA2NTEwMzU3NH0.mQGqhW30fbhg1aHcVtsAo2vmypDBSvnuvhYNvtSg0Jk'
+  );
+
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    localStorage.clear();
+    window.location.href = 'login.html';
+  });
+
+  document.getElementById('tanggal').min = new Date().toISOString().split('T')[0];
+
+  const userName = localStorage.getItem('sessionUser') || '-';
+  document.getElementById('userName').textContent = userName;
+
+  // Tab handler
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  const tabContents = document.querySelectorAll('.tab-content');
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabButtons.forEach(b => b.classList.remove('active'));
+      tabContents.forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.target).classList.add('active');
+    });
+  });
+
+  async function loadBarang() {
+    const { data } = await supabase.from('barang').select('*').order('id');
+    const tbody = document.getElementById('barangBody');
+    const select = document.getElementById('barang');
+    tbody.innerHTML = '';
+    select.innerHTML = '<option value="">-- Pilih Barang --</option>';
+    data.forEach(item => {
+      tbody.innerHTML += `<tr><td>${item.nama_barang}</td><td>${item.stok_barang}</td></tr>`;
+      const option = document.createElement('option');
+      option.value = item.nama_barang;
+      option.setAttribute('data-stok', item.stok_barang);
+      option.textContent = `${item.nama_barang} (Stok: ${item.stok_barang})`;
+      select.appendChild(option);
+    });
+  }
+
+  document.getElementById('peminjamanForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const nama = document.getElementById('nama').value.trim();
+    const nim = document.getElementById('nim').value.trim();
+    const barang = document.getElementById('barang').value;
+    const tanggal = document.getElementById('tanggal').value;
+    const jumlah = parseInt(document.getElementById('jumlah').value);
+    const stok = parseInt(document.querySelector(`#barang option[value="${barang}"]`)?.dataset.stok || 0);
+
+    if (!nama || !nim || !barang || !tanggal || !jumlah || jumlah <= 0) {
+      alert('Lengkapi semua form!');
+      return;
+    }
+
+    if (jumlah > stok) {
+      alert(`Jumlah pinjam tidak boleh melebihi stok (${stok})`);
+      return;
+    }
+
+    const { error } = await supabase.from('peminjaman').insert({
+      nama_siswa: nama,
+      nim,
+      barang,
+      jumlah,
+      tanggal_pinjam: tanggal,
+      status: 'Menunggu'
+    });
+
+    if (error) {
+      alert('❌ Gagal mengajukan peminjaman.');
+    } else {
+      alert('✅ Berhasil mengajukan peminjaman.');
+      document.getElementById('peminjamanForm').reset();
+      loadBarang();
+      loadRiwayat();
+    }
+  });
+
+  async function loadRiwayat() {
+    const { data } = await supabase
+      .from('peminjaman')
+      .select('*')
+      .eq('nama_siswa', userName)
+      .order('id', { ascending: false });
+
+    const tbody = document.getElementById('riwayatUserBody');
+    tbody.innerHTML = '';
+    data.forEach(item => {
+      tbody.innerHTML += `
+        <tr>
+          <td>${item.nama_siswa}</td>
+          <td>${item.nim}</td>
+          <td>${item.barang}</td>
+          <td>${item.jumlah}</td>
+          <td><span class="status ${item.status}">${item.status}</span></td>
+        </tr>
+      `;
+    });
+  }
+
+  loadBarang();
+  loadRiwayat();
+</script>
+</body>
+</html>

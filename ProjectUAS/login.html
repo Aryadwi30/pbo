@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Login Peminjaman Barang</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" type="image/png" href="logo.png">
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    const supabase = createClient(
+      'https://afithkfvpcpmmtvxkofy.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmaXRoa2Z2cGNwbW10dnhrb2Z5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk1Mjc1NzQsImV4cCI6MjA2NTEwMzU3NH0.mQGqhW30fbhg1aHcVtsAo2vmypDBSvnuvhYNvtSg0Jk'
+    );
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('loginForm');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const email = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
+
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        });
+
+        if (error) {
+          alert('❌ Login gagal: ' + error.message);
+          return;
+        }
+
+        localStorage.setItem('sessionUser', email);
+
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('email', email)
+          .single();
+
+        if (profileError || !profileData) {
+          alert('❌ Gagal mendapatkan role user');
+          return;
+        }
+
+        localStorage.setItem('role', profileData.role);
+
+        if (profileData.role === 'admin') {
+          window.location.href = 'admin.html';
+        } else {
+          window.location.href = 'index.html';
+        }
+      });
+    });
+  </script>
+</head>
+<body>
+  <div class="login-box">
+    <h2>Login</h2>
+    <form id="loginForm">
+      <label>Email:</label>
+      <input type="email" id="username" required>
+      <label>Password:</label>
+      <input type="password" id="password" required>
+      <button type="submit">Login</button>
+    </form>
+
+    <!-- Tombol Daftar -->
+    <p style="margin-top: 10px;">
+      Belum punya akun?
+      <a href="registrasi.html">Daftar di sini</a>
+    </p>
+  </div>
+</body>
+</html>

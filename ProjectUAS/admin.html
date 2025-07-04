@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin - Peminjaman Barang</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" type="image/png" href="logo.png">
+  <style>
+    .tab-bar { display: flex; gap: 10px; margin-bottom: 20px; }
+    .tab-button {
+      padding: 10px 20px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .tab-button.active { background: var(--primary); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .filter-group { margin-bottom: 10px; }
+    .filter-group input {
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    .btn-edit, .btn-delete {
+      padding: 6px 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .btn-edit { background: #facc15; color: black; margin-right: 5px; }
+    .btn-delete { background: #ef4444; color: white; }
+  </style>
+</head>
+<body>
+<div class="admin-box">
+  <h2>Halo Admin, <strong><span id="adminName"></span></strong></h2>
+
+  <div class="tab-bar">
+    <button class="tab-button active" data-tab="peminjaman">Konfirmasi</button>
+    <button class="tab-button" data-tab="tambah">Barang</button>
+    <button class="tab-button" data-tab="riwayat">Riwayat</button>
+  </div>
+
+  <div id="peminjaman" class="tab-content active">
+    <table>
+      <thead>
+        <tr><th>Nama</th><th>NIM</th><th>Barang</th><th>Jumlah</th><th>Tanggal</th><th>Status</th><th>Aksi</th></tr>
+      </thead>
+      <tbody id="peminjamanBody"></tbody>
+    </table>
+  </div>
+
+  <div id="tambah" class="tab-content">
+    <h3>Daftar Barang</h3>
+    <table>
+      <thead><tr><th>Nama Barang</th><th>Stok</th><th>Aksi</th></tr></thead>
+      <tbody id="barangTableBody"></tbody>
+    </table>
+
+    <h3>Tambah Barang</h3>
+    <form id="barangForm">
+      <input type="text" id="barangNama" placeholder="Nama Barang" required>
+      <input type="number" id="barangStok" placeholder="Stok" required min="1">
+      <button type="submit">Tambah Barang</button>
+    </form>
+  </div>
+
+  <div id="riwayat" class="tab-content">
+    <h3>Riwayat Peminjaman</h3>
+    <div class="filter-group">
+      <input type="text" id="filterNama" placeholder="Cari Nama">
+      <button onclick="loadRiwayat()">Cari</button>
+    </div>
+    <table>
+      <thead>
+        <tr><th>Nama</th><th>NIM</th><th>Barang</th><th>Jumlah</th><th>Tanggal</th><th>Status</th><th>Aksi</th></tr>
+      </thead>
+      <tbody id="riwayatBody"></tbody>
+    </table>
+  </div>
+
+  <button id="logoutBtn">Logout</button>
+</div>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+const supabase = createClient(
+  'https://afithkfvpcpmmtvxkofy.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmaXRoa2Z2cGNwbW10dnhrb2Z5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk1Mjc1NzQsImV4cCI6MjA2NTEwMzU3NH0.mQGqhW30fbhg1aHcVtsAo2vmypDBSvnuvhYNvtSg0Jk'
+);
+
+// SESSION
+document.getElementById('adminName').textContent = localStorage.getItem('sessionUser') || '-';
+document.getElementById('logoutBtn').onclick = () => {
+  localStorage.clear();
+  window.location.href = 'login.html';
+};
+
+// TAB SWITCH
+document.querySelectorAll('.tab-button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+    if (btn.dataset.tab === 'riwayat') loadRiwayat();
+    if (btn.dataset.tab === 'tambah') loadBarangTable();
+  });
+});
+
+// LOAD KONFIRMASI
+async function loadPeminjaman() {
+  const { data } = await supabase.from('peminjaman').select('*').order('id', { ascending: false });
+  const body = document.getElementById('peminjamanBody');
+  body.innerHTML = '';
+  data.filter(d => d.status === 'Menunggu').forEach(d => {
+    body.innerHTML += `
+      <tr>
+        <td>${d.nama_siswa}</td>
+        <td>${d.nim}</td>
+        <td>${d.barang}</td>
+        <td>${d.jumlah}</td>
+        <td>${d.tanggal_pinjam}</td>
+        <td>${d.status}</td>
+        <td>
+          <button onclick="konfirmasi(${d.id}, '${d.barang}', 'Diterima')">Terima</button>
+          <button onclick="konfirmasi(${d.id}, '${d.barang}', 'Ditolak')">Tolak</button>
+        </td>
+      </tr>`;
+  });
+}
+
+window.konfirmasi = async (id, barang, statusBaru) => {
+  const { data: pinjamData } = await supabase.from('peminjaman').select('jumlah, status').eq('id', id).single();
+  const jumlah = pinjamData?.jumlah || 1;
+  const statusLama = pinjamData?.status;
+
+  if ((statusLama === 'Menunggu' || statusLama === 'Ditolak') && statusBaru === 'Diterima') {
+    const { data: barangData } = await supabase.from('barang').select('stok_barang').eq('nama_barang', barang).single();
+    if (barangData && barangData.stok_barang >= jumlah) {
+      await supabase.from('barang').update({
+        stok_barang: barangData.stok_barang - jumlah
+      }).eq('nama_barang', barang);
+    } else {
+      alert(`⚠️ Gagal mengurangi stok. Stok saat ini (${barangData?.stok_barang}) lebih kecil dari jumlah (${jumlah})`);
+      return;
+    }
+  }
+
+  await supabase.from('peminjaman').update({ status: statusBaru }).eq('id', id);
+
+  loadPeminjaman();
+  loadRiwayat();
+  loadBarangTable();
+};
+
+// BARANG CRUD
+const barangForm = document.getElementById('barangForm');
+barangForm.onsubmit = async e => {
+  e.preventDefault();
+  const nama = document.getElementById('barangNama').value.trim();
+  const stok = parseInt(document.getElementById('barangStok').value);
+  if (!nama || isNaN(stok)) return alert('Isi nama & stok');
+  await supabase.from('barang').insert({ nama_barang: nama, stok_barang: stok });
+  barangForm.reset(); loadBarangTable();
+};
+
+async function loadBarangTable() {
+  const { data } = await supabase.from('barang').select('*');
+  const body = document.getElementById('barangTableBody');
+  body.innerHTML = '';
+  data.forEach(b => {
+    body.innerHTML += `
+      <tr>
+        <td><input type="text" value="${b.nama_barang}" data-id="${b.id}" class="edit-nama" /></td>
+        <td><input type="number" value="${b.stok_barang}" data-id="${b.id}" class="edit-stok" /></td>
+        <td>
+          <button class='btn-edit' onclick="editBarang(${b.id})">Simpan</button>
+          <button class='btn-delete' onclick="hapusBarang(${b.id})">Hapus</button>
+        </td>
+      </tr>`;
+  });
+}
+
+window.editBarang = async (id) => {
+  const nama = document.querySelector(`.edit-nama[data-id='${id}']`).value;
+  const stok = document.querySelector(`.edit-stok[data-id='${id}']`).value;
+  await supabase.from('barang').update({ nama_barang: nama, stok_barang: stok }).eq('id', id);
+  loadBarangTable();
+};
+
+window.hapusBarang = async (id) => {
+  if (!confirm('Yakin hapus barang ini?')) return;
+  await supabase.from('barang').delete().eq('id', id);
+  loadBarangTable();
+};
+
+// RIWAYAT
+window.loadRiwayat = async () => {
+  const nama = document.getElementById('filterNama').value.toLowerCase();
+  let { data } = await supabase.from('peminjaman').select('*').neq('status', 'Menunggu');
+  if (nama) data = data.filter(d => d.nama_siswa.toLowerCase().includes(nama));
+  const tbody = document.getElementById('riwayatBody');
+  tbody.innerHTML = '';
+  data.forEach(d => {
+    tbody.innerHTML += `
+      <tr>
+        <td><input type="text" value="${d.nama_siswa}" class="edit-nama" data-id="${d.id}" /></td>
+        <td><input type="text" value="${d.nim}" class="edit-nim" data-id="${d.id}" /></td>
+        <td><input type="text" value="${d.barang}" class="edit-barang" data-id="${d.id}" /></td>
+        <td><input type="number" value="${d.jumlah}" class="edit-jumlah" data-id="${d.id}" min="1" /></td>
+        <td><input type="date" value="${d.tanggal_pinjam}" class="edit-tanggal" data-id="${d.id}" /></td>
+        <td>
+          <select class="edit-status" data-id="${d.id}">
+            <option value="Diterima" ${d.status === 'Diterima' ? 'selected' : ''}>Diterima</option>
+            <option value="Ditolak" ${d.status === 'Ditolak' ? 'selected' : ''}>Ditolak</option>
+          </select>
+        </td>
+        <td>
+          <button class="btn-edit" onclick="simpanRiwayat(${d.id})">Simpan</button>
+          <button class="btn-delete" onclick="hapusRiwayat(${d.id})">Hapus</button>
+        </td>
+      </tr>`;
+  });
+};
+
+window.simpanRiwayat = async (id) => {
+  const nama = document.querySelector(`.edit-nama[data-id='${id}']`).value.trim();
+  const nim = document.querySelector(`.edit-nim[data-id='${id}']`).value.trim();
+  const barang = document.querySelector(`.edit-barang[data-id='${id}']`).value.trim();
+  const jumlah = parseInt(document.querySelector(`.edit-jumlah[data-id='${id}']`).value);
+  const tanggal = document.querySelector(`.edit-tanggal[data-id='${id}']`).value;
+  const statusBaru = document.querySelector(`.edit-status[data-id='${id}']`).value;
+
+  if (!nama || !nim || !barang || !tanggal || isNaN(jumlah)) {
+    alert('❌ Semua field wajib diisi!');
+    return;
+  }
+
+  const { data: pinjamData } = await supabase.from('peminjaman').select('status').eq('id', id).single();
+  const statusLama = pinjamData?.status;
+
+  if (statusLama !== statusBaru) {
+    const { data: barangData } = await supabase.from('barang').select('stok_barang').eq('nama_barang', barang).single();
+    if (!barangData) return alert('❌ Barang tidak ditemukan');
+
+    const stok = barangData.stok_barang;
+
+    if ((statusLama === 'Menunggu' || statusLama === 'Ditolak') && statusBaru === 'Diterima') {
+      if (stok < jumlah) return alert(`❌ Stok tidak cukup. Sisa: ${stok}`);
+      await supabase.from('barang').update({ stok_barang: stok - jumlah }).eq('nama_barang', barang);
+    }
+
+    if (statusLama === 'Diterima' && statusBaru === 'Ditolak') {
+      await supabase.from('barang').update({ stok_barang: stok + jumlah }).eq('nama_barang', barang);
+    }
+  }
+
+  await supabase.from('peminjaman').update({
+    nama_siswa: nama,
+    nim,
+    barang,
+    jumlah,
+    tanggal_pinjam: tanggal,
+    status: statusBaru
+  }).eq('id', id);
+
+  alert('✅ Riwayat diperbarui!');
+  loadRiwayat();
+  loadBarangTable();
+  loadPeminjaman();
+};
+
+window.hapusRiwayat = async (id) => {
+  const { data: pinjam } = await supabase.from('peminjaman').select('status, jumlah, barang').eq('id', id).single();
+  if (pinjam?.status === 'Diterima') {
+    const { data: barangData } = await supabase.from('barang').select('stok_barang').eq('nama_barang', pinjam.barang).single();
+    if (barangData) {
+      await supabase.from('barang').update({
+        stok_barang: barangData.stok_barang + pinjam.jumlah
+      }).eq('nama_barang', pinjam.barang);
+    }
+  }
+  await supabase.from('peminjaman').delete().eq('id', id);
+  loadRiwayat();
+  loadBarangTable();
+};
+
+loadPeminjaman();
+loadBarangTable();
+</script>
+</body>
+</html>
